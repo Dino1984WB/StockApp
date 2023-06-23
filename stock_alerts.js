@@ -26,6 +26,15 @@ async function onSubmit() {
 
     if (price > threshold) {
       await sendAlert(phone_number, stock_ticker, threshold);
+
+      var message = `Welcome to William's Stock Ticker! The stock ${stock_ticker} is currently at ${price}. STOP to stop texts.`;
+      var xhr = new XMLHttpRequest();
+      xhr.open("POST", "send_sms.php", true);
+      xhr.setRequestHeader("Content-Type", "application/json");
+      xhr.send(JSON.stringify({
+        phone_number: phone_number,
+        message: message
+      }));
     }
 
     const setInterval = setInterval(async () => {
