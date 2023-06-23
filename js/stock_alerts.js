@@ -1,15 +1,14 @@
-async function sendAlert(phone_number, stock_ticker, threshold) {
+async function sendAlert(phone_number, stock_ticker, threshold, message) {
   var xhr = new XMLHttpRequest();
   xhr.open("POST", "send_alert.php", true);
   xhr.setRequestHeader("Content-Type", "application/json");
   await xhr.send(JSON.stringify({
     phone_number: phone_number,
     stock_ticker: stock_ticker,
-    threshold: threshold
+    threshold: threshold,
+    message: message
   }));
 }
-
-const apiKey = "Ydj0yJmk9d3FHcE9wa3FEOW9ZJmQ9WVdrOWRUZEtkR0l3WTI0bWNHbzlNQT09JnM9Y29uc3VtZXJzZWNyZXQmc3Y9MCZ4PTVm";
 
 async function onSubmit() {
   var phone_number = $("#phone_number").val();
@@ -24,22 +23,15 @@ async function onSubmit() {
 
     const price = data.quoteSummary.price;
 
-    if (price > threshold) {
-      await sendAlert(phone_number, stock_ticker, threshold);
+    // Send welcome message when user clicks submit.
+    let welcomeMsg = `Welcome to William's Stock Ticker! The stock ${stock_ticker} is currently at ${price}. STOP to stop texts.`;
+    await sendAlert(phone_number, stock_ticker, threshold, welcomeMsg);
 
-      var message = `Welcome to William's Stock Ticker! The stock ${stock_ticker} is currently at ${price}. STOP to stop texts.`;
-      var xhr = new XMLHttpRequest();
-      xhr.open("POST", "send_sms.php", true);
-      xhr.setRequestHeader("Content-Type", "application/json");
-      xhr.send(JSON.stringify({
-        phone_number: phone_number,
-        message: message
-      }));
+    if (price > threshold) {
+      await sendAlert(phone_number, stock_ticker, threshold, `The stock ${stock_ticker} has reached your threshold.`);
     }
 
     const setInterval = setInterval(async () => {
-      const url = `https://finance.yahoo.com/quote/?symbols=${stock_ticker}&format=json&region=US&lang=en-US&apikey=${apiKey}`;
-
       const response = await fetch(url);
       const data = await response.json();
 
