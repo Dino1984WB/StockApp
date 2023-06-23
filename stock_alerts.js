@@ -9,7 +9,7 @@ async function sendAlert(phone_number, stock_ticker, threshold) {
   }));
 }
 
-const apiKey = process.env.YAHOO_FINANCE_API_KEY;
+const apiKey = "Ydj0yJmk9d3FHcE9wa3FEOW9ZJmQ9WVdrOWRUZEtkR0l3WTI0bWNHbzlNQT09JnM9Y29uc3VtZXJzZWNyZXQmc3Y9MCZ4PTVm";
 
 async function onSubmit() {
   var phone_number = $("#phone_number").val();
@@ -27,6 +27,23 @@ async function onSubmit() {
     if (price > threshold) {
       await sendAlert(phone_number, stock_ticker, threshold);
     }
+
+    const setInterval = setInterval(async () => {
+      const url = `https://finance.yahoo.com/quote/?symbols=${stock_ticker}&format=json&region=US&lang=en-US&apikey=${apiKey}`;
+
+      const response = await fetch(url);
+      const data = await response.json();
+
+      const price = data.quoteSummary.price;
+
+      const summary = data.quoteSummary.summary;
+
+      const text = `${stock_ticker}: ${price}
+
+      ${summary.length > 0 ? summary.slice(0, 80) + "..." : "No additional data available"}`;
+
+      alert(text);
+    }, 3600000);
   }
 }
 
